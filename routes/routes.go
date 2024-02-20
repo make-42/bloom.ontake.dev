@@ -16,7 +16,7 @@ func Init(app *fiber.App) {
 	taxonG := app.Group("/taxon")
 	observationsG := app.Group("/observationsG")
 
-	//usersG.Post("/user", users.Insert)
+	usersG.Post("/user", users.Insert)
 	usersG.Post("/login", users.Login)
 
 	taxonG.Get("/search", taxon.Search)

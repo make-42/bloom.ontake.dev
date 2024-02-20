@@ -1,0 +1,79 @@
+/* Write your global styles here, in SCSS syntax. Variables and mixins from the src/variables.scss file are available here without importing */
+:root {
+	font-family: Ubuntu;
+    color: $text-color;
+    background-color: $bg-color;
+}
+
+body {
+    margin:0px;
+}
+
+#sidebar {
+	position: fixed;
+    left:0px;
+    top:0px;
+	width: 340px;
+	height: 100vh;
+	background-color: $bg-darker-color;
+    border-right: 1px solid $border-color;
+}
+
+#content {
+    position: absolute;
+    left: 340px;
+    width: auto;
+}
+
+#sidebar-entries{
+    margin-top: 24px;
+}
+
+#sidebar-search-box{
+color:$text-hint-color;
+}
+
+.sidebar-entry-icon-svg{
+    height:20px;
+    width:20px;
+}
+
+
+.sidebar-entry-text{
+    margin-left: 16px;
+    display:flex;
+}
+
+.sidebar-entry{
+    padding: 8px 32px 8px 32px;
+    display:flex;
+    animation-name: loadIn;
+    animation-timing-function: ease-in-out;
+}
+
+#user-pfp{
+    margin-top: 32px;
+    margin-left: calc(340px / 2 - 64px);
+    width:128px;
+    height:128px;
+    background-color: $bg-color;
+    border: 1px solid $border-color;
+    border-radius: 64px;
+    animation: loadIn $animation-speed ease-in-out;
+}
+
+@for $i from 1 through 4 {
+    .sidebar-entry:nth-child(#{$i}n) {
+        animation-duration: #{$i * $animation-speed};
+    }
+}
+
+
+@keyframes loadIn {
+    from{opacity: 0;
+        transform: translateY(10px);
+    } to{
+        opacity:1;
+        transform: translateY(0px);
+    }
+}

@@ -14,12 +14,13 @@ import (
 func Init(app *fiber.App) {
 	usersG := app.Group("/users")
 	taxonG := app.Group("/taxon")
-	observationsG := app.Group("/observationsG")
+	observationsG := app.Group("/observations")
 
 	usersG.Post("/user", users.Insert)
 	usersG.Post("/login", users.Login)
 
 	taxonG.Get("/search", taxon.Search)
+	taxonG.Get("/taxon", taxon.ByID)
 
 	observationsG.Get("/observation/specific", observations.Get)
 

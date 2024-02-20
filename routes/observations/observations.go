@@ -8,11 +8,15 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"math"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/golang-jwt/jwt"
+	"github.com/gofiber/fiber/v2/log"
+	"github.com/golang-jwt/jwt/v5"
+
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
@@ -55,6 +59,11 @@ func Insert(c *fiber.Ctx) error {
 		return c.SendStatus(501)
 	}
 
+	if math.Abs(insertObservation.Lat) > 90 || math.Abs(insertObservation.Long) > 180 {
+		c.JSON(fiber.Map{"error": "invalid coordinates"})
+		return c.SendStatus(400)
+	}
+
 	observationsColl := db.DB().Collection("observations")
 
 	entry := observations.Entry{
@@ -95,6 +104,7 @@ func Patch(c *fiber.Ctx) error {
 	userID, err := users.GetUserIDFromUsername(name)
 	if err != nil {
 		c.JSON(fiber.Map{"error": "internal server error"})
+
 		return c.SendStatus(501)
 	}
 
@@ -106,7 +116,13 @@ func Patch(c *fiber.Ctx) error {
 
 	observationsColl := db.DB().Collection("observations")
 
-	existingObs := observationsColl.FindOne(context.Background(), bson.M{"_id": patchObservation.ID})
+	objectId := new(primitive.ObjectID)
+	err = objectId.UnmarshalText([]byte(patchObservation.ID))
+	if err != nil {
+		c.JSON(fiber.Map{"error": "internal server error"})
+		return c.SendStatus(501)
+	}
+	existingObs := observationsColl.FindOne(context.Background(), bson.M{"_id": objectId})
 	observation := new(observations.Entry)
 	err = existingObs.Decode(observation)
 	if err != nil {
@@ -120,7 +136,10 @@ func Patch(c *fiber.Ctx) error {
 			return c.SendStatus(401)
 		}
 	}
-
+	if math.Abs(patchObservation.Lat) > 90 || math.Abs(patchObservation.Long) > 180 {
+		c.JSON(fiber.Map{"error": "invalid coordinates"})
+		return c.SendStatus(400)
+	}
 	entry := observations.Entry{
 		UserID:         userID,
 		TaxonID:        patchObservation.TaxonID,
@@ -132,8 +151,9 @@ func Patch(c *fiber.Ctx) error {
 		DateModified:   time.Now().Unix(),
 		DateCreated:    observation.DateCreated,
 	}
-	_, err = observationsColl.UpdateByID(context.Background(), patchObservation.ID, entry)
+	_, err = observationsColl.ReplaceOne(context.Background(), bson.M{"_id": objectId}, entry)
 	if err != nil {
+		log.Error(err)
 		c.JSON(fiber.Map{"error": "error with updating entry in database"})
 		return c.SendStatus(501)
 	}
@@ -162,8 +182,13 @@ func Delete(c *fiber.Ctx) error {
 	}
 
 	observationsColl := db.DB().Collection("observations")
-
-	existingObs := observationsColl.FindOne(context.Background(), bson.M{"_id": delID})
+	objectId := new(primitive.ObjectID)
+	err = objectId.UnmarshalText([]byte(delID))
+	if err != nil {
+		c.JSON(fiber.Map{"error": "internal server error"})
+		return c.SendStatus(501)
+	}
+	existingObs := observationsColl.FindOne(context.Background(), bson.M{"_id": objectId})
 	observation := new(observations.Entry)
 	err = existingObs.Decode(observation)
 	if err != nil {
@@ -178,13 +203,17 @@ func Delete(c *fiber.Ctx) error {
 		}
 	}
 
-	_, err = observationsColl.DeleteOne(context.Background(), bson.M{"_id": delID})
+	res, err := observationsColl.DeleteOne(context.Background(), bson.M{"_id": objectId})
 	if err != nil {
-		c.JSON(fiber.Map{"error": "error with updating entry in database"})
+		c.JSON(fiber.Map{"error": "error with deleting entry in database"})
+		return c.SendStatus(501)
+	}
+	if res.DeletedCount == 0 {
+		c.JSON(fiber.Map{"error": "didn't find an element to delete"})
 		return c.SendStatus(501)
 	}
 
-	c.JSON(fiber.Map{"error": "null"})
+	c.JSON(fiber.Map{"error": "no error."})
 	return c.SendStatus(200)
 }
 
@@ -208,7 +237,7 @@ func GetSelf(c *fiber.Ctx) error {
 		return c.SendStatus(501)
 	}
 
-	var searchResults []observations.Entry
+	var searchResults []observations.EntryIDED
 	if err = searchResultsCur.All(context.TODO(), &searchResults); err != nil {
 		c.JSON(fiber.Map{"error": "internal server error"})
 		return c.SendStatus(501)

@@ -22,4 +22,6 @@ const MongoDBURI = "mongodb://localhost:27017"
 const MongoDBConnTimeout = 20 * time.Second
 const MongoDBName = "bloom"
 
+const ReturnFirstXResults = 50
+
 const PasswordHashSalt = "CHANGEME!"

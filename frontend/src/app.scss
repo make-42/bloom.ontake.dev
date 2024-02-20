@@ -7,6 +7,11 @@
 
 body {
     margin:0px;
+    background-image: url("$lib/assets/images/noise-strong.png");
+}
+
+a{
+    color:$text-accent-color;
 }
 
 #sidebar {
@@ -17,12 +22,13 @@ body {
 	height: 100vh;
 	background-color: $bg-darker-color;
     border-right: 1px solid $border-color;
+    background-image: url("$lib/assets/images/noise-strong.png");
 }
 
 #content {
     position: absolute;
     left: 340px;
-    width: auto;
+    width: calc(100vw - 340px - 64px );
 }
 
 #sidebar-entries{
@@ -60,6 +66,124 @@ color:$text-hint-color;
     border: 1px solid $border-color;
     border-radius: 64px;
     animation: loadIn $animation-speed ease-in-out;
+}
+
+#login-prompt-container,#observation-container-container{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+}
+
+#login-prompt,#observation-container{
+    position: absolute;
+    height: 50vh;
+    width: 20vw;
+    padding-top: 64px;
+    min-width: 400px;
+    min-height: 800px;
+    background-color: $bg-darker-color;
+    border: 1px solid $border-color;
+    border-radius: 8px;
+    transition: height $animation-speed ease-in-out, width $animation-speed ease-in-out;
+    text-align: center;
+    background-image: url("$lib/assets/images/noise-strong.png");
+    animation: loadIn $animation-speed ease-in-out;
+}
+
+.login-field-container{
+    margin:64px 0px 0px 0px;
+    text-align: center;
+}
+
+.login-field{
+    color:$text-color;
+    font-family: Ubuntu;
+    font-size: 16px;
+    padding:4px;
+    background-color: transparent;
+    border: none;
+    border-bottom: $border-color 1px solid;
+    width: 256px;
+}
+
+#login-button-container{
+    margin-top: 32px;
+}
+
+#login-button,button{
+    color:$text-color;
+    padding: 8px;
+    font-size: 16px;
+    background-color: transparent;
+    border: $border-color 1px solid;
+    border-radius: 8px;
+}
+
+.delete-button{
+    background-color: $destructive-color;
+    color: $bg-color;
+}
+
+.warning-button{
+    background-color: $error-color;
+}
+
+#login-error-message-container{
+    margin-top: 64px;
+    padding: 0px;
+    text-align: center;
+    background-color: $error-color;
+    transition: padding $animation-speed ease-in-out;
+}
+
+
+#register-message{
+    position: absolute;
+    bottom: 32px;
+    width: 100%;
+}
+
+#add-observation-button{
+    position: absolute;
+    top:32px;
+    left:32px;
+    width:32px;
+    height:32px;
+    background-color: $bg-darker-color;
+    border: $border-color 1px solid;
+    border-radius: 8px;
+    padding: 4px;
+}
+
+#add-observation-icon-svg{
+    width: 32px;
+    height: 32px;
+}
+
+.observation-item-container{
+    padding: 64px 32px 64px 32px;
+}
+
+.observation-item:nth-child(1){
+    padding: 32px 16px 32px 16px;
+    border-top: none;
+}
+
+.observation-item{
+    padding: 32px 16px 32px 16px;
+    border-top: $border-color 1px solid;
+    display:flex
+}
+
+.observation-mod-date{
+    margin-left: auto;
+}
+
+@for $i from 1 through 50 {
+    .observation-item:nth-child(#{$i}n) {
+        animation-duration: #{$i * $animation-speed};
+    }
 }
 
 @for $i from 1 through 4 {
